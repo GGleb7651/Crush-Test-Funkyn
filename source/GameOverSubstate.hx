@@ -1,7 +1,6 @@
 package;
 
 import flixel.FlxG;
-import flixel.FlxSprite;
 import flixel.FlxObject;
 import flixel.FlxSubState;
 import flixel.math.FlxMath;
@@ -14,8 +13,6 @@ import flixel.tweens.FlxTween;
 class GameOverSubstate extends MusicBeatSubstate
 {
 	public var boyfriend:Boyfriend;
-	public var background:FlxSprite;
-	public var animatedObject:FlxSprite;
 	var camFollow:FlxPoint;
 	var camFollowPos:FlxObject;
 	var updateCamera:Bool = false;
@@ -27,19 +24,6 @@ class GameOverSubstate extends MusicBeatSubstate
 	public static var deathSoundName:String = 'fnf_loss_sfx';
 	public static var loopSoundName:String = 'gameOver';
 	public static var endSoundName:String = 'gameOverEnd';
-	public static var backgroundName:String = '';
-
-	//only one object// if you wan more then cry bout it
-	public static var getAnimatedObjectFrame:String = '';
-	public static var animatedObjectAnimName:String = '';
-	public static var animatedObjectAnimXML:String = '';
-	public static var animatedObjectPlayAnim:String = '';
-	public static var animatedObjectX:Float = 0;
-	public static var animatedObjectY:Float = 0;
-	public static var backgroundNameObjectX:Float = 0;
-	public static var backgroundNameObjectY:Float = 0;
-	public static var characterNameX:Float = 0;
-	public static var characterNameY:Float = 0;
 
 	public static var instance:GameOverSubstate;
 
@@ -48,18 +32,6 @@ class GameOverSubstate extends MusicBeatSubstate
 		deathSoundName = 'fnf_loss_sfx';
 		loopSoundName = 'gameOver';
 		endSoundName = 'gameOverEnd';
-		backgroundName = '';
-
-
-		//Only 1 object//                   
-		getAnimatedObjectFrame = '';
-		animatedObjectAnimName = '';
-		animatedObjectAnimXML = '';
-		animatedObjectPlayAnim = '';
-		animatedObjectX = 0;
-		animatedObjectY = 0;
-		characterNameX = 0;
-		characterNameY = 0;
 	}
 
 	override function create()
@@ -78,29 +50,10 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		Conductor.songPosition = 0;
 
-		background = new FlxSprite().loadGraphic(Paths.image(backgroundName));
-		add(background); //background needs to be added first lmao don't even fucking try to change this
-
-		animatedObject = new FlxSprite();
-		animatedObject.frames = Paths.getSparrowAtlas(getAnimatedObjectFrame);
-		animatedObject.animation.addByPrefix(animatedObjectAnimName, animatedObjectAnimXML);
-		animatedObject.animation.play(animatedObjectPlayAnim);
-		animatedObject.x += animatedObjectX;
-		animatedObject.y += animatedObjectY;
-		add(animatedObject);
-
-
 		boyfriend = new Boyfriend(x, y, characterName);
-		if (characterNameX == 0 || characterNameY == 0) {
-			boyfriend.x += boyfriend.positionArray[0];
-			boyfriend.y += boyfriend.positionArray[1];
-			add(boyfriend);
-		} else if (characterNameX < 1 && characterNameY < 1) {
-			boyfriend.x += characterNameX;
-			boyfriend.y += characterNameY;
-			add(boyfriend);
-		}
-
+		boyfriend.x += boyfriend.positionArray[0];
+		boyfriend.y += boyfriend.positionArray[1];
+		add(boyfriend);
 
 		camFollow = new FlxPoint(boyfriend.getGraphicMidpoint().x, boyfriend.getGraphicMidpoint().y);
 
@@ -123,15 +76,7 @@ class GameOverSubstate extends MusicBeatSubstate
 	{
 		super.update(elapsed);
 
-
-
-
 		PlayState.instance.callOnLuas('onUpdate', [elapsed]);
-		if (backgroundName == '')
-		{
-			background.visible = false;
-		}
-
 		if(updateCamera) {
 			var lerpVal:Float = CoolUtil.boundTo(elapsed * 0.6, 0, 1);
 			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
@@ -159,7 +104,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			PlayState.instance.callOnLuas('onGameOverConfirm', [false]);
 		}
 
-		if (boyfriend.animation.curAnim != null && boyfriend.animation.curAnim.name == 'firstDeath')
+		if (boyfriend.animation.curAnim.name == 'firstDeath')
 		{
 			if(boyfriend.animation.curAnim.curFrame >= 12 && !isFollowingAlready)
 			{
