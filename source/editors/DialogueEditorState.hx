@@ -27,7 +27,6 @@ import flash.net.FileFilter;
 import haxe.Json;
 import DialogueBoxPsych;
 import lime.system.Clipboard;
-import Alphabet;
 #if sys
 import sys.io.File;
 #end
@@ -38,7 +37,7 @@ class DialogueEditorState extends MusicBeatState
 {
 	var character:DialogueCharacter;
 	var box:FlxSprite;
-	var daText:TypedAlphabet;
+	var daText:Alphabet;
 
 	var selectedText:FlxText;
 	var animText:FlxText;
@@ -231,6 +230,7 @@ class DialogueEditorState extends MusicBeatState
 	private static var DEFAULT_BUBBLETYPE:String = "normal";
 	function reloadText(speed:Float = 0.05) {
 		if(daText != null) {
+			daText.killTheTimer();
 			daText.kill();
 			remove(daText);
 			daText.destroy();
@@ -240,11 +240,9 @@ class DialogueEditorState extends MusicBeatState
 
 		var textToType:String = lineInputText.text;
 		if(textToType == null || textToType.length < 1) textToType = ' ';
-
-		daText = new TypedAlphabet(DialogueBoxPsych.DEFAULT_TEXT_X, DialogueBoxPsych.DEFAULT_TEXT_Y, textToType, speed, false);
-		daText.sound = soundInputText.text;
-		daText.scaleX = 0.7;
-		daText.scaleY = 0.7;
+	
+		Alphabet.setDialogueSound(soundInputText.text);
+		daText = new Alphabet(DialogueBoxPsych.DEFAULT_TEXT_X, DialogueBoxPsych.DEFAULT_TEXT_Y, textToType, false, true, speed, 0.7);
 		add(daText);
 
 		if(speed > 0) {
@@ -330,6 +328,11 @@ class DialogueEditorState extends MusicBeatState
 				FlxG.sound.volumeUpKeys = [];
 				blockInput = true;
 
+				if(FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.V && Clipboard.text != null) { //Copy paste
+					inputText.text = ClipboardAdd(inputText.text);
+					inputText.caretIndex = inputText.text.length;
+					getEvent(FlxUIInputText.CHANGE_EVENT, inputText, null, []);
+				}
 				if(FlxG.keys.justPressed.ENTER) {
 					if(inputText == lineInputText) {
 						inputText.text += '\\n';
